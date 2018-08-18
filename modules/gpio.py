@@ -1,78 +1,72 @@
-#!/usr/bin/env python
-import os, time
-DIR = "/sys/class/gpio"
+#!/usr/bin/env python3
+import re
 
-def map( port ):
-	map = {
-		"PG00":{"name":"gpio9_pg0",   "number":9},
-		"PG01":{"name":"gpio7_pg1",   "number":7},
-		"PG02":{"name":"gpio8_pg2",   "number":8},
-		"PG04":{"name":"gpio6_pg4",   "number":6},
-		"PG05":{"name":"gpio5_pg5",   "number":5},
-		"PG06":{"name":"gpio4_pg6",   "number":4},
-		"PG07":{"name":"gpio19_pg7",  "number":19},
-		"PG08":{"name":"gpio18_pg8",  "number":18},
-		"PG09":{"name":"gpio17_pg9",  "number":17},
-		"PG10":{"name":"gpio16_pg10", "number":16},
-		"PG11":{"name":"gpio15_pg11", "number":15}
-	}
-	if not port in map:
-		raise GPIOError("Port not found in mapping")
-	return map[port]
-	
-def _open(port, direction, **args):
-	## Check input arguments
-	if not direction in ["in", "out"]:
-		raise AttributeError("Invalid port direction (" + direction + ")")
-	## Open the port with /export file
-	data = map(port)
-	if os.path.exists(DIR + "/" + data["name"]):
-		raise GPIOError("Port is already opened")
-	open(DIR + "/export", "w").write(str(data["number"]))
-	## Write port direction with /<port>/direction file
-	if not os.path.exists(DIR + "/" + data["name"]):
-		raise GPIOError("Port can't be opened")
-	open(DIR + "/" + data["name"] + "/direction", "w").write(direction)
-	## Poll for rising or falling edges
-	if direction=="in" and ("rise" in args or "fall" in args):
-		while os.path.exists(DIR + "/" + data["name"]):
-			value = _read(port)
-			time.sleep(0.001)						## Sleep for 1ms
-			if value=="0" and _read(port)=="1" and "rise" in args:
-				args["rise"](port)
-			elif value=="1" and _read(port)=="0" and "fall" in args:
-				args["fall"](port)
-
-def _close(*ports):
-	## Close the ports with /unexport file
-	for port in ports:
-		try:
-			data = map(port)
-			if not os.path.exists(DIR + "/" + data["name"]):
-				raise GPIOError("Port is already closed")
-			open(DIR + "/unexport", "w").write(str(data["number"]))
-		except:
-			pass
-			
-def _read(port):
-	data = map(port)
-	if not os.path.exists(DIR + "/" + data["name"]):
-		raise GPIOError("Port is not opened")
-	if open(DIR + "/" + data["name"] + "/direction", "r").read().strip()!="in":
-		raise GPIOError("Port is not defined as input")
-	return open(DIR + "/" + data["name"] + "/value", "r").read().strip()
-
-def _write(port, value):
-	## Check input arguments
-	if not value in ["0", "1"]:
-		raise AttributeError("Invalid port value (" + value + ")")
-	data = map(port)
-	if not os.path.exists(DIR + "/" + data["name"]):
-		raise GPIOError("Port is not opened")
-	if open(DIR + "/" + data["name"] + "/direction", "r").read().strip()!="out":
-		raise GPIOError("Port is not defined as output")
-	open(DIR + "/" + data["name"] + "/value", "w").write(value)
+GPIO_DIRECTORY='/sys/class/gpio'
 
 class GPIOError(Exception):
-	def __init__(self, message):
-		super(GPIOError, self).__init__(message)
+    def __init__(self, message):
+        super(GPIOError, self).__init__(message)
+
+class GPIO:
+    @property
+    def pin(self):
+        return self.__pin
+    @pin.setter
+    def pin(self, value):
+        pass
+
+    @property
+    def port(self):
+        return self.__port
+    @port.setter
+    def port(self, value):
+        pass
+
+    @property
+    def number(self):
+        return self.__number
+    @number.setter
+    def number(self, value):
+        pass
+
+    @property
+    def address(self):
+        return self.__address
+    @address.setter
+    def address(self, value):
+        pass
+
+    @property
+    def direction(self):
+        return self.__direction
+    @direction.setter
+    def direction(self, value):
+        pass
+
+    @property
+    def value(self):
+        return int(open(GPIO_DIRECTORY + '/gpio' + self.__address + '/value', 'r').read().strip())
+    @value.setter
+    def value(self, value):
+        open(GPIO_DIRECTORY + '/gpio' + self.__address + '/value', 'w').write(str(value))
+
+    def __init__(self, pin, direction='in'):
+        try:
+            self.__pin = pin.lower()
+            regex = r'p(?P<port>[a-z])(?P<number>[0-9]*)'
+            self.__port = re.match(regex, self.__pin).group('port')
+            self.__number = int(re.match(regex, self.__pin).group('number'))
+            self.__address = str(32*(ord(self.__port)-97) + self.__number)
+        except:
+            raise GPIOError('Invalid pin format!')
+        if direction not in ('in', 'out'):
+            raise GPIOError('Invalid direction!')
+        self.__direction = direction
+        open(GPIO_DIRECTORY + '/export', 'w').write(self.__address)
+        open(GPIO_DIRECTORY + '/gpio' + self.__address + '/direction', 'w').write(self.__direction)
+        self.value = 0
+
+    def __del__(self):
+        if self.direction == 'out':
+            self.value = 0
+        open(GPIO_DIRECTORY + '/unexport', 'w').write(self.__address)
