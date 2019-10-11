@@ -51,3 +51,30 @@ class M95:
         self.power_off()
         self.power_on()
         open(LOGFILE, 'a').write(timestamp() + ' Module ready!\n')
+
+if __name__=="__main__":
+    import os
+    import sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    from modules.gpio import GPIO
+
+    if len(sys.argv)==3 and sys.argv[1]=='--send':
+        open(LOGFILE, 'a').write(timestamp() + ' <- ' + sys.argv[2] + '\n')
+    elif len(sys.argv)==2 and sys.argv[1]=='--power-off':
+        M95().power_off(True)
+        os.popen('systemctl stop quectel-m95.service').read().strip()
+    else:
+        M95().reset()
+        s = serial.Serial('/dev/ttyS7', 9600, timeout=1)
+        while True:
+            line = ''
+            last = os.popen('tail -1 ' + LOGFILE).read().strip()
+            if 'Z] <- AT' in last:
+                s.write((last[26:] + '\n').encode('ascii'))
+                time.sleep(0.5)
+                while line != last[26:]:
+                    line = s.readline().decode('ascii').strip()
+            line = s.readline().decode('ascii').strip()
+            if not line:
+                continue
+            open(LOGFILE, 'a').write(timestamp() + ' -> ' + line + '\n')
