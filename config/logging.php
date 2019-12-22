@@ -34,6 +34,12 @@ return [
     */
 
     'channels' => [
+        'quectel-m95' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/devices/quectel-m95.log'),
+            'level' => 'debug',
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['daily'],

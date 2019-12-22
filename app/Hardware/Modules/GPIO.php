@@ -73,6 +73,7 @@ class GPIO
         $this->direction = $direction;
 
         // Open the GPIO pin
+        file_put_contents(GPIO_DIRECTORY . '/unexport', $this->address);
         file_put_contents(GPIO_DIRECTORY . '/export', $this->address);
         file_put_contents(GPIO_DIRECTORY . '/gpio' . $this->address . '/direction', $this->direction);
         $this->setValue(0);
