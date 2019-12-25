@@ -1,7 +1,0 @@
-## CUBIETRUCK CRONTAB
-MAILTO=cubie@felipeandres254.io
-
-# System scripts
-*     *     *     *     *     crontab /hdd/.crontab >/dev/null 2>&1
-*     *     *     *     *     rm -rf /root/.bash_history >/dev/null 2>&1
-*     *     *     *     *     chown -R root:root /hdd >/dev/null 2>&1
