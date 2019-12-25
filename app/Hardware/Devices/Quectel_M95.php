@@ -26,7 +26,8 @@ class Quectel_M95
      */
     function __construct () {
         $this->POWER = new GPIO('PG1', 'out');
-        $this->STATUS = new GPIO('PI3');
+        $this->STATUS = new GPIO('PI3', 'in');
+
         $this->POWER->setValue(0);
     }
 
