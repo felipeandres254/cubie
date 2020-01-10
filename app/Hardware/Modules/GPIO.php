@@ -73,7 +73,9 @@ class GPIO
         $this->direction = $direction;
 
         // Open the GPIO pin
-        file_put_contents(GPIO_DIRECTORY . '/unexport', $this->address);
+        if (file_exists(GPIO_DIRECTORY . '/gpio' . $this->address)) {
+            file_put_contents(GPIO_DIRECTORY . '/unexport', $this->address);
+        }
         file_put_contents(GPIO_DIRECTORY . '/export', $this->address);
         file_put_contents(GPIO_DIRECTORY . '/gpio' . $this->address . '/direction', $this->direction);
         $this->setValue(0);
