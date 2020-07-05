@@ -86,10 +86,10 @@ prompt_end() {
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
-# Context: user@hostname (who am I and where am I)
+# Context: hostname (where am I)
 prompt_context() {
   if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment black default "%(!.%{%F{yellow}%}.)%n@%m"
+    prompt_segment black default "%(!.%{%F{yellow}%}.)%m"
   fi
 }
 
@@ -202,9 +202,9 @@ prompt_hg() {
   fi
 }
 
-# Dir: current working directory
+# Dir: last segment of current working directory
 prompt_dir() {
-  prompt_segment blue $CURRENT_FG '%~'
+  prompt_segment blue $CURRENT_FG '%1~'
 }
 
 # Virtualenv: current working virtualenv
