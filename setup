@@ -1,0 +1,45 @@
+#!/bin/bash
+
+## Cubietruck setup script
+#  Author: @felipeandres254
+#  Usage: Must run after flashing Lubuntu v1.02
+#  $ mkdir /hdd; mount /dev/sda1 /hdd; cd /hdd/.cubie; ./setup;
+
+# Auto-mount disk
+uuid=$(blkid | grep /dev/sda1 | cut -d '"' -f 2)
+echo -e "\nUUID=$uuid /hdd auto nosuid,nodev,nofail 0 0" >> /etc/fstab
+
+# Setup user
+userdel -r linaro
+useradd -m cubie
+echo -e "cubie\ncubie" | passwd cubie
+usermod -aG www-data cubie
+usermod -aG cubie www-data
+usermod -aG sudo cubie
+
+# Update and upgrade packages
+cp ./etc/apt/sources.list /etc/apt/sources.list
+apt-get update
+apt-get upgrade -y
+apt-get install -y build-essential make gcc g++ git git-core dos2unix
+apt-get install -y tree curl zip unzip wireless-tools wpasupplicant
+apt-get install -y zsh
+
+# Setup user shell
+cp ./etc/sudoers.d/cubie-install /etc/sudoers.d/cubie-install
+sudo -u cubie -i /hdd/.cubie/home/cubie/install.sh
+
+# Setup network interfaces
+cp ./etc/network/interfaces /etc/network/interfaces
+modprobe bcmdhd
+echo bcmdhd >> /etc/modules
+echo cubie > /etc/hostname
+wpa_passphrase WIFI_SSID WIFI_PASS >> /etc/wpa_supplicant.conf
+
+# Setup locale and timezone
+locale-gen en_US.UTF-8
+dpkg-reconfigure locales
+echo -e "\nexport LC_ALL=en_US.UTF-8" >> /etc/profile
+ntpdate time.google.com
+
+reboot
