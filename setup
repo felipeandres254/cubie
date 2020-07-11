@@ -42,6 +42,14 @@ dpkg-reconfigure locales
 echo -e "\nexport LC_ALL=en_US.UTF-8" >> /etc/profile
 ntpdate time.google.com
 
+# Setup boot scripts
+sed -i "s/^exit 0/# Call init.d scripts/" /etc/rc.local
+for file in etc/init.d/*; do
+    cp $file /$file
+    echo "/$file &" >> /etc/rc.local
+done
+echo -e "\nexit 0" >> /etc/rc.local
+
 # Configure LEDs
 mount /dev/nanda /mnt
 fex2bin ./dev/nanda/script.fex /mnt/script.bin
