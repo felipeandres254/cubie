@@ -42,4 +42,9 @@ dpkg-reconfigure locales
 echo -e "\nexport LC_ALL=en_US.UTF-8" >> /etc/profile
 ntpdate time.google.com
 
+# Configure LEDs
+mount /dev/nanda /mnt
+fex2bin ./dev/nanda/script.fex /mnt/script.bin
+sync
+
 reboot
