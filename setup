@@ -41,6 +41,7 @@ wpa_passphrase WIFI_SSID WIFI_PASS >> /etc/wpa_supplicant.conf
 locale-gen en_US.UTF-8
 dpkg-reconfigure locales
 echo -e "\nexport LC_ALL=en_US.UTF-8" >> /etc/profile
+cp /usr/share/zoneinfo/America/Bogota /etc/localtime
 ntpdate time.google.com
 
 # Setup boot scripts
