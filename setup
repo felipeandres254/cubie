@@ -17,6 +17,12 @@ usermod -aG www-data cubie
 usermod -aG cubie www-data
 usermod -aG sudo cubie
 
+# Setup SSH
+for file in home/cubie/.ssh/*; do
+    [[ "$file" == "/home/cubie/.ssh/.gitkeep" ]] && continue
+    cp $file /$file
+done
+
 # Update and upgrade packages
 cp ./etc/apt/sources.list /etc/apt/sources.list
 apt-get update
