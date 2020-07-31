@@ -1,27 +1,27 @@
 #!/bin/bash
 
-DIR=/sys/class/leds
-LED=$DIR/red:led1
+# Show network status via onboard LEDs
+for led in /sys/class/leds/*; do
+    echo none > $led/trigger
+    echo 0 > $led/brightness
+done
 
-echo 0 > $LED/brightness
-echo 0 > $DIR/green:led2/brightness
-echo 0 > $DIR/green:led3/brightness
-echo 0 > $DIR/green:led4/brightness
-
-echo timer > $LED/trigger
-echo 100 > $LED/delay_on
-echo 100 > $LED/delay_off
+echo 1 > /sys/class/leds/cubietruck:blue:usr/brightness
 
 sleep 1
 while true; do
-	curl -sI https://felipeandres254.io >/dev/null
-	if [ $? -eq 0 ]; then
-		break
-	fi
+    curl -sI https://felipeandres254.io >/dev/null
+    if [ $? -eq 0 ]; then
+        break
+    fi
 done
 
-echo none > $LED/trigger
-sleep .1; echo 1 > $LED/brightness;
-sleep .1; echo 1 > $DIR/green:led2/brightness;
-sleep .1; echo 1 > $DIR/green:led3/brightness;
-sleep .1; echo 1 > $DIR/green:led4/brightness;
+sleep .1; echo 1 > /sys/class/leds/cubietruck:orange:usr/brightness;
+sleep .1; echo 1 > /sys/class/leds/cubietruck:white:usr/brightness;
+sleep .1; echo 1 > /sys/class/leds/cubietruck:green:usr/brightness;
+
+sleep 5;
+for led in /sys/class/leds/*; do
+    echo none > $led/trigger
+    echo 0 > $led/brightness
+done

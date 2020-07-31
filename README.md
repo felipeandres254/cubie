@@ -16,7 +16,7 @@ I am currently using the following hardware
 
 ### Software
 
-1. Lubuntu v1.02
+1. Armbian Bionic v5.4.y
 2. Apache web server
 
 [CT info]: http://docs.cubieboard.org/tutorials/cubietruck/start
