@@ -1,9 +1,9 @@
 #!/bin/bash
-
-## Cubietruck setup script
-#  Author: @felipeandres254
-#  Usage: Must run with cubie user after root login
-#  $ mkdir /hdd; mount /dev/sda1 /hdd; cd /hdd/.cubie; ./setup;
+#
+# Cubietruck setup script
+# Author: @felipeandres254
+# Description: Must run after root login, as cubie
+#              $ mkdir /hdd; mount /dev/sda1 /hdd; cd /hdd/.cubie; ./setup;
 
 # Auto-mount disk
 uuid=$(blkid | grep /dev/sda1 | cut -d '"' -f 2)
@@ -21,6 +21,7 @@ done
 apt-get update
 apt-get upgrade -y
 apt-get install -y dos2unix tree zip zsh
+cp ./etc/nanorc /etc/nanorc
 
 # Setup user shell
 rm -rf /home/cubie/.oh-my-zsh
