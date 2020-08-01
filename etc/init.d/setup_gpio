@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Export GPIO and write permissions
+DIR=/sys/class/gpio
+
+# DVK571 LEDs and buttons
+echo 196 > $DIR/export; echo in > $DIR/gpio196/direction;
+echo 197 > $DIR/export; echo in > $DIR/gpio197/direction;
+echo 198 > $DIR/export; echo in > $DIR/gpio198/direction;
+echo 199 > $DIR/export; echo out > $DIR/gpio199/direction; echo 1 > $DIR/gpio199/value;
+echo 200 > $DIR/export; echo out > $DIR/gpio200/direction; echo 1 > $DIR/gpio200/value;
+echo 201 > $DIR/export; echo out > $DIR/gpio201/direction; echo 1 > $DIR/gpio201/value;
+
+chgrp -hHR gpio /sys/class/gpio
+chgrp -hHR gpio /sys/class/gpio/gpio*/*
+chmod g+rw -R /sys/class/gpio
+chmod g+rw -R /sys/class/gpio/gpio*/*

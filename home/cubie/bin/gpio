@@ -1,0 +1,102 @@
+#!/bin/bash
+#
+# GPIO management tool
+# Author: @felipeandres254
+# Description: Manage GPIO pins across device
+
+# Usage
+description="Manage GPIO pins across device"
+usage() {
+    echo
+    echo "Usage: gpio [-h|--help] <action> <pin> [value]"
+    echo "Options:"
+    echo "  action        One of 'write' or 'read'"
+    echo "  pin           The pin to operate"
+    echo "  value         Boolean input for the write action"
+    echo "  -h, --help    Display help"
+    echo
+}
+
+# MAIN PROGRAM
+HELP=false
+ACTION=""
+PORT=""
+PIN=""
+VALUE=""
+while true; do
+    case "$1" in
+        -h | --help) HELP=true; shift;;
+        *)
+            if [ -z "$ACTION" ]; then
+                ACTION="$1"
+                PIN=$(echo $2 | tr "[:upper:]" "[:lower:]")
+                shift 2
+                if [ "$ACTION" = "write" ]; then
+                    VALUE="$1"
+                    shift
+                fi
+            fi
+            break
+    esac
+done
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    HELP=true
+fi
+
+if [ $HELP = true ]; then
+    echo $description
+    usage
+    exit 0
+fi
+
+case "$ACTION" in
+    write | read)
+        echo $PIN | grep -Eq "p[a-z][0-9]+"
+        if [ $? -ne 0 ]; then
+            PIN=$(echo $PIN | tr "[:lower:]" "[:upper:]")
+            echo -e "\e[1;31mERROR\e[0m Pin '$PIN' is invalid"
+            usage
+            exit 1
+        fi
+        PORT=$(echo $PIN | cut -c2)
+        PORT=$(printf "%d" "'$PORT")
+        PORT=$((PORT - 97))
+        PIN=$(echo $PIN | cut -c3-)
+        PIN=$(($PIN))
+        if [ $PIN -ge 32 ]; then
+            echo -e "\e[1;31mERROR\e[0m Pin '$PIN' is invalid"
+            usage
+            exit 1
+        fi
+        PIN=$((32 * $PORT + $PIN))
+        ;;
+    *)
+        echo -e "\e[1;31mERROR\e[0m Action '$ACTION' is invalid"
+        usage
+        exit 1
+esac
+
+# ACTIONS
+DIR=/sys/class/gpio
+_write() {
+    if [ ! -e "$DIR/gpio$PIN" ]; then
+        echo -e "\e[1;31mERROR\e[0m Pin '$PIN' is invalid"
+        usage
+        exit 1
+    fi
+    echo out > $DIR/gpio$PIN/direction
+    echo $VALUE > $DIR/gpio$PIN/value
+}
+
+_read() {
+    if [ ! -e "$DIR/gpio$PIN" ]; then
+        echo -e "\e[1;31mERROR\e[0m Pin '$PIN' is invalid"
+        usage
+        exit 1
+    fi
+    echo in > $DIR/gpio$PIN/direction
+    VALUE=$(cat $DIR/gpio$PIN/value)
+    echo $(($VALUE))
+}
+
+_$ACTION

@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Show network status via onboard LEDs
-for led in /sys/class/leds/*; do
+DIR=/sys/class/leds
+for led in $DIR/*; do
     echo none > $led/trigger
     echo 0 > $led/brightness
 done
 
-echo 1 > /sys/class/leds/cubietruck:blue:usr/brightness
+echo 1 > $DIR/cubietruck:blue:usr/brightness
 
 sleep 1
 while true; do
@@ -16,12 +17,12 @@ while true; do
     fi
 done
 
-sleep .1; echo 1 > /sys/class/leds/cubietruck:orange:usr/brightness;
-sleep .1; echo 1 > /sys/class/leds/cubietruck:white:usr/brightness;
-sleep .1; echo 1 > /sys/class/leds/cubietruck:green:usr/brightness;
+sleep .1; echo 1 > $DIR/cubietruck:orange:usr/brightness;
+sleep .1; echo 1 > $DIR/cubietruck:white:usr/brightness;
+sleep .1; echo 1 > $DIR/cubietruck:green:usr/brightness;
 
 sleep 5;
-for led in /sys/class/leds/*; do
+for led in $DIR/*; do
     echo none > $led/trigger
     echo 0 > $led/brightness
 done
