@@ -1,2 +1,0 @@
-# Override cubie shell installation
-cubie ALL=(cubie) NOPASSWD:/hdd/.cubie/home/cubie/install.sh
