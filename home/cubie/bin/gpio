@@ -41,6 +41,7 @@ while true; do
 done
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     HELP=true
+    shift
 fi
 
 if [ $HELP = true ]; then

@@ -11,6 +11,10 @@ echo 199 > $DIR/export; echo out > $DIR/gpio199/direction; echo 1 > $DIR/gpio199
 echo 200 > $DIR/export; echo out > $DIR/gpio200/direction; echo 1 > $DIR/gpio200/value;
 echo 201 > $DIR/export; echo out > $DIR/gpio201/direction; echo 1 > $DIR/gpio201/value;
 
+# Quectel M95
+echo 83 > $DIR/export; echo in > $DIR/gpio83/direction;
+echo 193 > $DIR/export; echo out > $DIR/gpio193/direction; echo 0 > $DIR/gpio193/value;
+
 chgrp -hHR gpio /sys/class/gpio
 chgrp -hHR gpio /sys/class/gpio/gpio*/*
 chmod g+rw -R /sys/class/gpio
