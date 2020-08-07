@@ -5,6 +5,7 @@
 # Description: Manage Quectel M95 module
 
 import argparse
+import serial
 import subprocess
 import time
 
@@ -13,6 +14,9 @@ parser = argparse.ArgumentParser(description='Manage Quectel M95 module')
 parser.add_argument('action', choices=['on', 'off', 'read', 'write'], help='the action to take')
 parser.add_argument('args', nargs='*', help='the action inputs')
 args = parser.parse_args()
+
+# Configure serial port
+s = serial.Serial('/dev/ttyS1', 9600, timeout=1)
 
 if args.action == 'on':
   while True:
@@ -24,6 +28,16 @@ if args.action == 'on':
     else:
       break
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
+  time.sleep(1)
+  flag = 0
+  while flag < 2:
+    data = s.readline().decode('utf-8').strip()
+    if not data:
+      continue
+    if data == 'Call Ready' or data.startswith('+QNITZ'):
+      flag += 1
+  s.close()
+  time.sleep(1)
   exit()
 
 if args.action == 'off':
@@ -36,4 +50,14 @@ if args.action == 'off':
     else:
       break
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
+  time.sleep(1)
+  flag = 0
+  while flag < 1:
+    data = s.readline().decode('utf-8').strip()
+    if not data:
+      continue
+    if data == 'NORMAL POWER DOWN':
+      flag += 1
+  s.close()
+  time.sleep(1)
   exit()
