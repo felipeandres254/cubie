@@ -24,7 +24,13 @@ s.timeout = 1
 def QUECTEL_M95__STATUS():
   """Get the module status"""
   status = subprocess.run(['gpio', 'read', 'pc19'], stdout=subprocess.PIPE)
-  return int(result.stdout.decode('utf-8'))
+  return int(status.stdout.decode('utf-8'))
+
+def QUECTEL_M95__READ():
+  """Read a line from module UART"""
+  s.open()
+  line = s.readline().decode('utf-8').strip()
+  s.close()
 
 def QUECTEL_M95__POWER_ON():
   """Power on the module"""
@@ -35,16 +41,12 @@ def QUECTEL_M95__POWER_ON():
     subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
     time.sleep(0.1)
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
+  #
   time.sleep(1)
-  s.open()
-  flag = 0
-  while flag < 2:
-    data = s.readline().decode('utf-8').strip()
-    if not data:
-      continue
-    if data == 'Call Ready' or data.startswith('+QNITZ'):
-      flag += 1
-  s.close()
+  while QUECTEL_M95__READ() != 'Call Ready':
+    pass
+  while not QUECTEL_M95__READ().startswith('+QNITZ'):
+    pass
   time.sleep(1)
   exit()
 
@@ -57,16 +59,10 @@ def QUECTEL_M95__POWER_OFF():
     subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
     time.sleep(0.1)
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
+  #
   time.sleep(1)
-  s.open()
-  flag = 0
-  while flag < 1:
-    data = s.readline().decode('utf-8').strip()
-    if not data:
-      continue
-    if data == 'NORMAL POWER DOWN':
-      flag += 1
-  s.close()
+  while QUECTEL_M95__READ() != 'NORMAL POWER DOWN':
+    pass
   time.sleep(1)
   exit()
 
