@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+#
+# Quectel M95 management tool
+# Author: @felipeandres254
+# Description: Manage Quectel M95 module
+
+import argparse
+import subprocess
+import time
+
+# Parse CLI arguments
+parser = argparse.ArgumentParser(description='Manage Quectel M95 module')
+parser.add_argument('action', choices=['on', 'off', 'read', 'write'], help='the action to take')
+parser.add_argument('args', nargs='*', help='the action inputs')
+args = parser.parse_args()
+
+if args.action == 'on':
+  while True:
+    result = subprocess.run(['gpio', 'read', 'pc19'], stdout=subprocess.PIPE)
+    result = int(result.stdout.decode('utf-8'))
+    if result == 0:
+      subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
+      time.sleep(0.1)
+    else:
+      break
+  subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
+  exit()
+
+if args.action == 'off':
+  while True:
+    result = subprocess.run(['gpio', 'read', 'pc19'], stdout=subprocess.PIPE)
+    result = int(result.stdout.decode('utf-8'))
+    if result == 1:
+      subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
+      time.sleep(0.1)
+    else:
+      break
+  subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
+  exit()
