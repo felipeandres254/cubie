@@ -18,7 +18,8 @@ args = parser.parse_args()
 # Configure serial port
 s = serial.Serial('/dev/ttyS1', 9600, timeout=1)
 
-if args.action == 'on':
+def QUECTEL_M95__POWER_ON():
+  """Power on the module"""
   while True:
     result = subprocess.run(['gpio', 'read', 'pc19'], stdout=subprocess.PIPE)
     result = int(result.stdout.decode('utf-8'))
@@ -40,7 +41,8 @@ if args.action == 'on':
   time.sleep(1)
   exit()
 
-if args.action == 'off':
+def QUECTEL_M95__POWER_OFF():
+  """Power off the module"""
   while True:
     result = subprocess.run(['gpio', 'read', 'pc19'], stdout=subprocess.PIPE)
     result = int(result.stdout.decode('utf-8'))
@@ -61,3 +63,8 @@ if args.action == 'off':
   s.close()
   time.sleep(1)
   exit()
+
+if args.action == 'on':
+  QUECTEL_M95__POWER_ON()
+if args.action == 'off':
+  QUECTEL_M95__POWER_OFF()
