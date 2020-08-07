@@ -16,10 +16,14 @@ parser.add_argument('args', nargs='*', help='the action inputs')
 args = parser.parse_args()
 
 # Configure serial port
-s = serial.Serial()
-s.port = '/dev/ttyS1'
-s.baudrate = 9600
-s.timeout = 1
+s = serial.Serial('/dev/ttyS1', 9600, timeout=1)
+
+def _exit(code = 0):
+  """Alias for safe CLI exit"""
+  while s.is_open:
+    s.close()
+  time.sleep(0.1)
+  exit(code)
 
 def QUECTEL_M95__STATUS():
   """Get the module status"""
@@ -28,45 +32,60 @@ def QUECTEL_M95__STATUS():
 
 def QUECTEL_M95__READ():
   """Read a line from module UART"""
-  s.open()
-  line = s.readline().decode('utf-8').strip()
-  s.close()
+  return s.readline().decode('utf-8').strip()
+
+def QUECTEL_M95__WRITE(command, data = []):
+  """Write a command to the module"""
+  command = 'AT' + command + '\n'
+  s.write(command.encode())
+  QUECTEL_M95__READ()
+  line, output = '\n', ''
+  while line != '':
+    output += line + '\n'
+    line = QUECTEL_M95__READ()
+  return output.strip()
 
 def QUECTEL_M95__POWER_ON():
   """Power on the module"""
   if QUECTEL_M95__STATUS() == 1:
-    time.sleep(1)
-    exit()
+    _exit()
   while QUECTEL_M95__STATUS() == 0:
     subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
     time.sleep(0.1)
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
   #
-  time.sleep(1)
   while QUECTEL_M95__READ() != 'Call Ready':
     pass
   while not QUECTEL_M95__READ().startswith('+QNITZ'):
     pass
-  time.sleep(1)
-  exit()
+  _exit()
 
 def QUECTEL_M95__POWER_OFF():
   """Power off the module"""
   if QUECTEL_M95__STATUS() == 0:
-    time.sleep(1)
-    exit()
+    _exit()
   while QUECTEL_M95__STATUS() == 1:
     subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
     time.sleep(0.1)
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
   #
-  time.sleep(1)
   while QUECTEL_M95__READ() != 'NORMAL POWER DOWN':
     pass
-  time.sleep(1)
-  exit()
+  _exit()
 
+# Power status change
 if args.action == 'on':
   QUECTEL_M95__POWER_ON()
 if args.action == 'off':
   QUECTEL_M95__POWER_OFF()
+
+# Not turned on
+if QUECTEL_M95__STATUS() == 0:
+  _exit(1)
+
+# Write to UART and print response
+if args.action == 'write':
+  if not args.args:
+    args.args = ['']
+  print(QUECTEL_M95__WRITE(args.args[0]))
+  _exit()
