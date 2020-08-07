@@ -16,20 +16,27 @@ parser.add_argument('args', nargs='*', help='the action inputs')
 args = parser.parse_args()
 
 # Configure serial port
-s = serial.Serial('/dev/ttyS1', 9600, timeout=1)
+s = serial.Serial()
+s.port = '/dev/ttyS1'
+s.baudrate = 9600
+s.timeout = 1
+
+def QUECTEL_M95__STATUS():
+  """Get the module status"""
+  status = subprocess.run(['gpio', 'read', 'pc19'], stdout=subprocess.PIPE)
+  return int(result.stdout.decode('utf-8'))
 
 def QUECTEL_M95__POWER_ON():
   """Power on the module"""
-  while True:
-    result = subprocess.run(['gpio', 'read', 'pc19'], stdout=subprocess.PIPE)
-    result = int(result.stdout.decode('utf-8'))
-    if result == 0:
-      subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
-      time.sleep(0.1)
-    else:
-      break
+  if QUECTEL_M95__STATUS() == 1:
+    time.sleep(1)
+    exit()
+  while QUECTEL_M95__STATUS() == 0:
+    subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
+    time.sleep(0.1)
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
   time.sleep(1)
+  s.open()
   flag = 0
   while flag < 2:
     data = s.readline().decode('utf-8').strip()
@@ -43,16 +50,15 @@ def QUECTEL_M95__POWER_ON():
 
 def QUECTEL_M95__POWER_OFF():
   """Power off the module"""
-  while True:
-    result = subprocess.run(['gpio', 'read', 'pc19'], stdout=subprocess.PIPE)
-    result = int(result.stdout.decode('utf-8'))
-    if result == 1:
-      subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
-      time.sleep(0.1)
-    else:
-      break
+  if QUECTEL_M95__STATUS() == 0:
+    time.sleep(1)
+    exit()
+  while QUECTEL_M95__STATUS() == 1:
+    subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
+    time.sleep(0.1)
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
   time.sleep(1)
+  s.open()
   flag = 0
   while flag < 1:
     data = s.readline().decode('utf-8').strip()
