@@ -5,14 +5,17 @@
 # Description: Manage Quectel M95 module
 
 import argparse
+import math
+import re
 import serial
 import subprocess
 import time
 
 # Parse CLI arguments
+actions = ['on', 'off', 'imei', 'operator', 'number', 'rssi', 'ber']
 parser = argparse.ArgumentParser(description='Manage Quectel M95 module')
-parser.add_argument('action', choices=['on', 'off', 'read', 'write'], help='the action to take')
-parser.add_argument('args', nargs='*', help='the action inputs')
+parser.add_argument('power', nargs='?', choices=['on', 'off'], help='power on/off the module')
+parser.add_argument('--get', action='store', help='the property to get')
 args = parser.parse_args()
 
 # Configure serial port
@@ -74,18 +77,46 @@ def QUECTEL_M95__POWER_OFF():
   _exit()
 
 # Power status change
-if args.action == 'on':
+if args.power == 'on':
   QUECTEL_M95__POWER_ON()
-if args.action == 'off':
+if args.power == 'off':
   QUECTEL_M95__POWER_OFF()
 
-# Not turned on
+# Module not turned on
 if QUECTEL_M95__STATUS() == 0:
   _exit(1)
 
-# Write to UART and print response
-if args.action == 'write':
-  if not args.args:
-    args.args = ['']
-  print(QUECTEL_M95__WRITE(args.args[0]))
-  _exit()
+## ==================================================
+##  QUECTEL M95 - DEVICE SPECIFICS
+## ==================================================
+if args.get == 'imei':
+  print(QUECTEL_M95__WRITE('+GSN'))
+if args.get == 'operator':
+  response = QUECTEL_M95__WRITE('+COPS?')
+  response = re.findall(r'"(.*)"', response)
+  if not response or not response[0] or response[0] != 'Tigo':
+    _exit(1)
+  print('Movil Exito')
+if args.get == 'number':
+  response = QUECTEL_M95__WRITE('+CNUM')
+  response = re.findall(r'","(.*)"', response)
+  if not response or not response[0]:
+    _exit(1)
+  print(response[0])
+if args.get == 'rssi':
+  response = QUECTEL_M95__WRITE('+CSQ')
+  response = re.findall(r' (.*),', response)
+  if not response or not response[0] or response[0] == '99':
+    _exit(1)
+  print(str(2*int(response[0]) - 113) + 'dBm')
+if args.get == 'ber':
+  response = QUECTEL_M95__WRITE('+CSQ')
+  response = re.findall(r',(.*)', response)
+  if not response or not response[0] or response[0] == '99':
+    _exit(1)
+  if response[0] == '0':
+    print('0%')
+  else:
+    print(str((2**int(response[0]))/10.0) + '%')
+
+_exit()
