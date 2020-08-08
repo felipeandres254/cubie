@@ -5,6 +5,7 @@
 # Description: Manage Quectel M95 module
 
 import argparse
+import datetime
 import math
 import re
 import serial
@@ -61,6 +62,9 @@ def QUECTEL_M95__POWER_ON():
     pass
   while not QUECTEL_M95__READ().startswith('+QNITZ'):
     pass
+  #
+  QUECTEL_M95__WRITE('+QNITZ=1')
+  QUECTEL_M95__WRITE('+CTZU=1')
   _exit()
 
 def QUECTEL_M95__POWER_OFF():
@@ -89,6 +93,13 @@ if QUECTEL_M95__STATUS() == 0:
 ## ==================================================
 ##  QUECTEL M95 - DEVICE SPECIFICS
 ## ==================================================
+if args.get == 'clk':
+  response = QUECTEL_M95__WRITE('+CCLK?')
+  response = re.findall(r'"(.*)"', response)
+  response = response[0][:17]
+  response = datetime.datetime.strptime(response, '%y/%m/%d,%H:%M:%S')
+  response = response.strftime('%Y-%m-%dT%H:%M:%SZ')
+  print(response)
 if args.get == 'imei':
   print(QUECTEL_M95__WRITE('+GSN'))
 if args.get == 'operator':
