@@ -15,6 +15,7 @@ import time
 # Parse CLI arguments
 parser = argparse.ArgumentParser(description='Manage Quectel M95 module')
 parser.add_argument('power', nargs='?', choices=['on', 'off'], help='power on/off the module')
+parser.add_argument('--listen', action='store_true', help='continuous listening of port')
 parser.add_argument('--get', action='store', help='the property to get')
 args = parser.parse_args()
 
@@ -92,6 +93,17 @@ if args.power == 'off':
 # Module not turned on
 if QUECTEL_M95__STATUS() == 0:
   _exit(1)
+
+# Continuous listen
+if args.listen:
+  while True:
+    ts = datetime.datetime.now()
+    if ts.second % 5 != 0 or ts.second == 0:
+      continue
+    line = QUECTEL_M95__READ()
+    if line and line != 'OK':
+      print(line)
+  _exit()
 
 # Get module properties
 QUECTEL_M95__PROPERTIES = 'clk imei operator number rssi ber'.split(' ')
