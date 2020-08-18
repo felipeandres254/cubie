@@ -21,6 +21,8 @@ done
 apt-get update
 apt-get upgrade -y
 apt-get install -y dos2unix tree zip zsh
+apt-get install -y apache2 mysql-server php libapache2-mod-php php-mysql
+apt-get install -y phpmyadmin php-curl php-mbstring php-gettext
 cp ./etc/nanorc /etc/nanorc
 
 # Setup user shell
