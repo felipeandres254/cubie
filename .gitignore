@@ -4,4 +4,4 @@ home/**/.ssh/*
 
 # Logs
 var/log/*
-!var/log/.gitkeep
+!var/log/**/.gitkeep
