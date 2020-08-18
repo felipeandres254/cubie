@@ -38,13 +38,18 @@ def QUECTEL_M95__READ():
   """Read a line from module UART"""
   return s.readline().decode('utf-8').strip()
 
-def QUECTEL_M95__WRITE(command, data = []):
+def QUECTEL_M95__WRITE(command, data = None):
   """Write a command to the module"""
   command = 'AT' + command + '\n'
   s.write(command.encode())
-  QUECTEL_M95__READ()
-  line, output = '\n', ''
-  while line != '':
+  #
+  if data is None:
+    QUECTEL_M95__READ()
+  else:
+    pass # TODO
+  #
+  line, output = '', ''
+  while line != 'OK':
     output += line + '\n'
     line = QUECTEL_M95__READ()
   return output.strip()
@@ -101,8 +106,9 @@ if args.listen:
     if ts.second % 5 != 0 or ts.second == 0:
       continue
     line = QUECTEL_M95__READ()
-    if line and line != 'OK':
-      print(line)
+    if not line or line == 'OK':
+      continue
+    print(line)
   _exit()
 
 # Get module properties
