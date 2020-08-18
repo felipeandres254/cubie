@@ -1,0 +1,4 @@
+## Cubietruck Crontab File
+
+*     *     *     *     *     crontab /hdd/.cubie/.crontab
+*     *     *     *     *     find /hdd/.cubie -type f -print0 | xargs -0 dos2unix
