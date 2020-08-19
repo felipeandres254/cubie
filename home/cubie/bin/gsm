@@ -46,7 +46,10 @@ def QUECTEL_M95__WRITE(command, data = None):
   if data is None:
     QUECTEL_M95__READ()
   else:
-    pass # TODO
+    prompt = ''
+    while prompt != data['start']:
+      prompt = QUECTEL_M95__READ()
+    s.write((data['content'] + data['end'] + '\n').encode())
   #
   line, output = '', ''
   while line != 'OK':
