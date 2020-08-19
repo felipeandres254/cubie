@@ -112,7 +112,7 @@ if args.listen:
   _exit()
 
 # Get module properties
-QUECTEL_M95__PROPERTIES = 'clk imei operator number rssi ber'.split(' ')
+QUECTEL_M95__PROPERTIES = 'clk imei operator number rssi ber credit'.split(' ')
 if args.get:
   if args.get not in QUECTEL_M95__PROPERTIES:
     _exit(1)
@@ -152,4 +152,12 @@ if args.get:
       print('0%')
     else:
       print(str((2**int(response[0]))/10.0) + '%')
+  if args.get == 'credit':
+    QUECTEL_M95__WRITE('+CUSD=2')
+    QUECTEL_M95__WRITE('+CSCS="GSM"')
+    response = QUECTEL_M95__WRITE('+CUSD=1,"*3333#"')
+    QUECTEL_M95__WRITE('+CUSD=2')
+    response = response.split('\n')[0].strip()
+    response = response.split(' ')[-1].strip()
+    print('$ ' + response.replace(',', ''))
   _exit()
