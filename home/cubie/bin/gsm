@@ -55,6 +55,8 @@ def QUECTEL_M95__WRITE(command, data = None):
   while line != 'OK':
     output += line + '\n'
     line = QUECTEL_M95__READ()
+    if 'ERR' in line:
+      raise IOError(line)
   return output.strip()
 
 def QUECTEL_M95__POWER_ON():
@@ -156,6 +158,7 @@ if args.get:
     else:
       print(str((2**int(response[0]))/10.0) + '%')
   if args.get == 'credit':
+    QUECTEL_M95__WRITE('+CUSD=1')
     QUECTEL_M95__WRITE('+CUSD=2')
     QUECTEL_M95__WRITE('+CSCS="GSM"')
     response = QUECTEL_M95__WRITE('+CUSD=1,"*3333#"')
