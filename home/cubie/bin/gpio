@@ -1,103 +1,37 @@
-#!/bin/bash
+#!/usr/bin/python3
 #
 # GPIO management tool
 # Author: @felipeandres254
-# Description: Manage GPIO pins across device
+# Description: Manage GPIO pins
 
-# Usage
-description="Manage GPIO pins across device"
-usage() {
-    echo
-    echo "Usage: gpio [-h|--help] <action> <pin> [value]"
-    echo "Options:"
-    echo "  action        One of 'write' or 'read'"
-    echo "  pin           The pin to operate"
-    echo "  value         Boolean input for the write action"
-    echo "  -h, --help    Display help"
-    echo
-}
+import argparse
+import os.path
+import re
 
-# MAIN PROGRAM
-HELP=false
-ACTION=""
-PORT=""
-PIN=""
-VALUE=""
-while true; do
-    case "$1" in
-        -h | --help) HELP=true; shift;;
-        *)
-            if [ -z "$ACTION" ]; then
-                ACTION="$1"
-                PIN=$(echo $2 | tr "[:upper:]" "[:lower:]")
-                shift 2
-                if [ "$ACTION" = "write" ]; then
-                    VALUE="$1"
-                    shift
-                fi
-            fi
-            break
-    esac
-done
-if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    HELP=true
-    shift
-fi
+# Parse CLI arguments
+def pin_type(value, pattern=re.compile(r'[p|P][a-iA-I][0-9]{1,2}')):
+  if not pattern.match(value) or int(value[2:]) <= 0 or int(value[2:]) >= 32:
+    raise argparse.ArgumentTypeError("Pin '" + value + "' is invalid")
+  return value.lower()
+parser = argparse.ArgumentParser(description='Manage GPIO pins')
+parser.add_argument('action', choices=['read', 'write'], help='the action to execute')
+parser.add_argument('pin', type=pin_type, help='the pin to operate')
+parser.add_argument('value', nargs='?', help="boolean input for 'write'")
+args = parser.parse_args()
 
-if [ $HELP = true ]; then
-    echo $description
-    usage
-    exit 0
-fi
+## ==================================================
+##  MAIN PROGRAM
+## ==================================================
 
-case "$ACTION" in
-    write | read)
-        echo $PIN | grep -Eq "p[a-z][0-9]+"
-        if [ $? -ne 0 ]; then
-            PIN=$(echo $PIN | tr "[:lower:]" "[:upper:]")
-            echo -e "\e[1;31mERROR\e[0m Pin '$PIN' is invalid"
-            usage
-            exit 1
-        fi
-        PORT=$(echo $PIN | cut -c2)
-        PORT=$(printf "%d" "'$PORT")
-        PORT=$((PORT - 97))
-        PIN=$(echo $PIN | cut -c3-)
-        PIN=$(($PIN))
-        if [ $PIN -ge 32 ]; then
-            echo -e "\e[1;31mERROR\e[0m Pin '$PIN' is invalid"
-            usage
-            exit 1
-        fi
-        PIN=$((32 * $PORT + $PIN))
-        ;;
-    *)
-        echo -e "\e[1;31mERROR\e[0m Action '$ACTION' is invalid"
-        usage
-        exit 1
-esac
+# Check if pin is enabled
+GPIO = int(args.pin[2:]) + 32*(ord(args.pin[1]) - 97)
+GPIO = '/sys/class/gpio/gpio' + str(GPIO)
+if not os.path.exists(GPIO):
+  raise IOError("Pin '" + args.pin + "' is disabled")
 
-# ACTIONS
-DIR=/sys/class/gpio
-_write() {
-    if [ ! -e "$DIR/gpio$PIN" ]; then
-        echo -e "\e[1;31mERROR\e[0m Pin '$PIN' is invalid"
-        usage
-        exit 1
-    fi
-    echo out > $DIR/gpio$PIN/direction
-    echo $VALUE > $DIR/gpio$PIN/value
-}
-
-_read() {
-    if [ ! -e "$DIR/gpio$PIN" ]; then
-        echo -e "\e[1;31mERROR\e[0m Pin '$PIN' is invalid"
-        usage
-        exit 1
-    fi
-    echo in > $DIR/gpio$PIN/direction
-    VALUE=$(cat $DIR/gpio$PIN/value)
-    echo $(($VALUE))
-}
-
-_$ACTION
+if args.action == 'read':
+  open(GPIO + '/direction', 'w').write('in')
+  print(open(GPIO + '/value', 'r').read().strip())
+if args.action == 'write':
+  open(GPIO + '/direction', 'w').write('out')
+  open(GPIO + '/value', 'w').write(args.value if args.value else '0')
