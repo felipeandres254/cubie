@@ -1,25 +1,23 @@
 #!/usr/bin/python3
 #
-# Quectel M95 management tool
+# Quectel M95 - Management tool
 # Author: @felipeandres254
 # Description: Manage Quectel M95 module
 
 import argparse
-import datetime
-import math
-import re
 import serial
 import subprocess
 
 # Parse CLI arguments
 parser = argparse.ArgumentParser(description='Manage Quectel M95 module')
 parser.add_argument('power', nargs='?', choices=['on', 'off'], help='power on/off the module')
-parser.add_argument('--listen', action='store_true', help='continuous listening of port')
-parser.add_argument('--get', action='store', help='the property to get')
+parser.add_argument('--status', action='store_true', help='get the status of the module')
+parser.add_argument('--read', action='store', help='read a line from the module port')
+parser.add_argument('--write', nargs='?', help='write raw command and data to the module port')
 args = parser.parse_args()
 
 # Configure serial port
-s = serial.Serial('/dev/ttyS1', 9600, timeout=1)
+s = serial.Serial('/dev/ttyS1', 9600, timeout=0.1)
 
 def _exit(code = 0):
   """Alias for safe CLI exit"""
@@ -67,8 +65,6 @@ def QUECTEL_M95__POWER_ON():
   #
   while QUECTEL_M95__READ() != 'Call Ready':
     pass
-  while not QUECTEL_M95__READ().startswith('+QNITZ'):
-    pass
   #
   QUECTEL_M95__WRITE('+QNITZ=1')
   QUECTEL_M95__WRITE('+CTZU=1')
@@ -84,6 +80,7 @@ def QUECTEL_M95__POWER_OFF():
   #
   while QUECTEL_M95__READ() != 'NORMAL POWER DOWN':
     pass
+  #
   _exit()
 
 ## ==================================================
@@ -96,70 +93,26 @@ if args.power == 'on':
 if args.power == 'off':
   QUECTEL_M95__POWER_OFF()
 
-# Module not turned on
-if QUECTEL_M95__STATUS() == 0:
-  _exit(1)
-
-# Continuous listen
-if args.listen:
-  while True:
-    ts = datetime.datetime.now()
-    if ts.second % 5 != 0 or ts.second == 0:
-      continue
-    line = QUECTEL_M95__READ()
-    if not line or line == 'OK':
-      continue
-    print(line)
+# Get module status
+if args.status:
+  print('on' if QUECTEL_M95__STATUS() else 'off')
   _exit()
 
-# Get module properties
-QUECTEL_M95__PROPERTIES = 'clk imei operator number rssi ber credit'.split(' ')
-if args.get:
-  if args.get not in QUECTEL_M95__PROPERTIES:
-    _exit(1)
-  if args.get == 'clk':
-    response = QUECTEL_M95__WRITE('+CCLK?')
-    response = re.findall(r'"(.*)"', response)
-    response = response[0][:17]
-    response = datetime.datetime.strptime(response, '%y/%m/%d,%H:%M:%S')
-    response = response.strftime('%Y-%m-%dT%H:%M:%SZ')
-    print(response)
-  if args.get == 'imei':
-    print(QUECTEL_M95__WRITE('+GSN'))
-  if args.get == 'operator':
-    response = QUECTEL_M95__WRITE('+COPS?')
-    response = re.findall(r'"(.*)"', response)
-    if not response or not response[0] or response[0] != 'Tigo':
-      _exit(1)
-    print('Movil Exito')
-  if args.get == 'number':
-    response = QUECTEL_M95__WRITE('+CNUM')
-    response = re.findall(r'","(.*)"', response)
-    if not response or not response[0]:
-      _exit(1)
-    print('+57 ' + response[0])
-  if args.get == 'rssi':
-    response = QUECTEL_M95__WRITE('+CSQ')
-    response = re.findall(r' (.*),', response)
-    if not response or not response[0] or response[0] == '99':
-      _exit(1)
-    print(str(2*int(response[0]) - 113) + 'dBm')
-  if args.get == 'ber':
-    response = QUECTEL_M95__WRITE('+CSQ')
-    response = re.findall(r',(.*)', response)
-    if not response or not response[0] or response[0] == '99':
-      _exit(1)
-    if response[0] == '0':
-      print('0%')
-    else:
-      print(str((2**int(response[0]))/10.0) + '%')
-  if args.get == 'credit':
-    QUECTEL_M95__WRITE('+CUSD=1')
-    QUECTEL_M95__WRITE('+CUSD=2')
-    QUECTEL_M95__WRITE('+CSCS="GSM"')
-    response = QUECTEL_M95__WRITE('+CUSD=1,"*3333#"')
-    QUECTEL_M95__WRITE('+CUSD=2')
-    response = response.split('\n')[0].strip()
-    response = response.split(' ')[-1].strip()
-    print('$ ' + response.replace(',', ''))
+# Read a line
+if args.read:
+  print(QUECTEL_M95__READ())
+  _exit()
+
+# Write a command
+if args.write:
+  args.write = args.write.split(';;')
+  cmd = args.write[0]
+  data = None
+  if len(args.write) > 1:
+    data = {
+      'start': args.write[1],
+      'content': args.write[2],
+      'end': chr(int(args.write[3])),
+    }
+  print(QUECTEL_M95__WRITE(cmd, data))
   _exit()

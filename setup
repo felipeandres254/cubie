@@ -14,11 +14,14 @@ echo -e "cubie\ncubie" | passwd cubie
 usermod -aG www-data cubie
 usermod -aG cubie www-data
 usermod -aG sudo cubie
+usermod -aG dialout cubie
 
 # Update and upgrade packages
 apt-get update
 apt-get upgrade -y
 apt-get install -y dos2unix tree zip zsh
+apt-get install -y python3-pip
+pip3 install pyserial
 
 # Setup network
 rm -rf /etc/NetworkManager/system-connections/*
