@@ -1,7 +1,3 @@
-# SSH keys
-home/**/.ssh/*
-!home/**/.ssh/.gitkeep
-
 # Logs
 var/log/*
 !var/log/.gitkeep
