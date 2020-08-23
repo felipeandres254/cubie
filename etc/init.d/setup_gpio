@@ -3,6 +3,9 @@
 # Export GPIO and write permissions
 DIR=/sys/class/gpio
 
+getent group gpio || groupadd gpio
+usermod -aG gpio cubie
+
 # DVK571 LEDs and buttons
 echo 196 > $DIR/export; echo in > $DIR/gpio196/direction;
 echo 197 > $DIR/export; echo in > $DIR/gpio197/direction;

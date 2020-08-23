@@ -10,7 +10,6 @@ import math
 import re
 import serial
 import subprocess
-import time
 
 # Parse CLI arguments
 parser = argparse.ArgumentParser(description='Manage Quectel M95 module')
@@ -26,7 +25,6 @@ def _exit(code = 0):
   """Alias for safe CLI exit"""
   while s.is_open:
     s.close()
-  time.sleep(0.1)
   exit(code)
 
 def QUECTEL_M95__STATUS():
@@ -65,7 +63,6 @@ def QUECTEL_M95__POWER_ON():
     _exit()
   while QUECTEL_M95__STATUS() == 0:
     subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
-    time.sleep(0.1)
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
   #
   while QUECTEL_M95__READ() != 'Call Ready':
@@ -83,7 +80,6 @@ def QUECTEL_M95__POWER_OFF():
     _exit()
   while QUECTEL_M95__STATUS() == 1:
     subprocess.run(['gpio', 'write', 'pg1', '1'], stdout=subprocess.PIPE)
-    time.sleep(0.1)
   subprocess.run(['gpio', 'write', 'pg1', '0'], stdout=subprocess.PIPE)
   #
   while QUECTEL_M95__READ() != 'NORMAL POWER DOWN':

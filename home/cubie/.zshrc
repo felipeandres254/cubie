@@ -100,3 +100,6 @@ source $ZSH/oh-my-zsh.sh
 
 # Update PATH
 export PATH=/hdd/.cubie/home/cubie/bin:$PATH
+
+# Change working directory
+cd /hdd/.cubie

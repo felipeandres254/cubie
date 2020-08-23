@@ -2,37 +2,42 @@
 #
 # Cubietruck setup script
 # Author: @felipeandres254
-# Description: Must run after root login, as cubie
-#              $ mkdir /hdd; mount /dev/sda1 /hdd; cd /hdd/.cubie; ./setup;
+# Description: Runs automatically on first boot
 
 # Auto-mount disk
 uuid=$(blkid | grep /dev/sda1 | cut -d '"' -f 2)
 echo -e "UUID=$uuid /hdd auto nosuid,nodev,nofail 0 0" >> /etc/fstab
 
 # Setup user
+useradd cubie
+echo -e "cubie\ncubie" | passwd cubie
 usermod -aG www-data cubie
 usermod -aG cubie www-data
-for file in home/cubie/.ssh/*; do
-    [[ "$file" == "/home/cubie/.ssh/.gitkeep" ]] && continue
-    cp $file /$file
-done
+usermod -aG sudo cubie
 
 # Update and upgrade packages
 apt-get update
 apt-get upgrade -y
 apt-get install -y dos2unix tree zip zsh
-cp ./etc/nanorc /etc/nanorc
 
-# Setup user shell
-rm -rf /home/cubie/.oh-my-zsh
-./home/cubie/install.sh
+# Setup network
+rm -rf /etc/NetworkManager/system-connections/*
+nmcli con add con-name Ethernet \
+    type ethernet \
+    ifname eth0 \
+    ipv4.method manual \
+    ipv4.address 192.168.1.100 \
+    ipv4.gateway 192.168.1.254 \
+    ipv4.dns 8.8.8.8
 
 # Setup boot scripts
 sed -i "s/^exit 0/# Call init.d scripts/" /etc/rc.local
-for file in etc/init.d/*; do
-    cp $file /$file
-    echo "/$file &" >> /etc/rc.local
+for file in /hdd/.cubie/etc/init.d/*; do
+    echo "$file &" >> /etc/rc.local
 done
 echo -e "\nexit 0" >> /etc/rc.local
+
+# Setup crontab
+crontab /hdd/.cubie/.crontab
 
 reboot
