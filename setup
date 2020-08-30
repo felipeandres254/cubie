@@ -24,6 +24,12 @@ nmcli con add con-name Ethernet \
     ipv4.address 192.168.1.101 \
     ipv4.gateway 192.168.1.254 \
     ipv4.dns 8.8.8.8
+nmcli device wifi connect "WIFI_SSID" password "WIFI_PASSWORD"
+nmcli con mod WIFI_SSID \
+    ipv4.method manual \
+    ipv4.address 192.168.1.100 \
+    ipv4.gateway 192.168.1.254 \
+    ipv4.dns 8.8.8.8
 
 # Update and upgrade packages
 apt-get update
