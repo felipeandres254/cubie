@@ -1,2 +1,3 @@
 # Docker aliases
 alias docker='sudo docker'
+alias ffmpeg='docker run --rm -it -v /hdd/.drive:/ffmpeg cubie/ffmpeg'
