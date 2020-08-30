@@ -261,6 +261,8 @@ main() {
 
 	cp /hdd/.cubie/home/cubie/.zshrc \
 		/home/cubie/.zshrc
+	cp /hdd/.cubie/home/cubie/.zsh_aliases \
+		/home/cubie/.zsh_aliases
 	cp /hdd/.cubie/home/cubie/.oh-my-zsh/themes/agnoster.zsh-theme \
 		/home/cubie/.oh-my-zsh/themes/agnoster.zsh-theme
 	rm -rf \

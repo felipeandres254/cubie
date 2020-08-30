@@ -1,0 +1,2 @@
+# Docker aliases
+alias docker='sudo docker'

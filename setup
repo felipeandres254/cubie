@@ -15,22 +15,32 @@ usermod -aG www-data cubie
 usermod -aG cubie www-data
 usermod -aG sudo cubie
 
-# Update and upgrade packages
-apt-get update
-apt-get upgrade -y
-apt-get install -y dos2unix tree zip zsh
-
 # Setup network
 rm -rf /etc/NetworkManager/system-connections/*
 nmcli con add con-name Ethernet \
     type ethernet \
     ifname eth0 \
     ipv4.method manual \
-    ipv4.address 192.168.1.100 \
+    ipv4.address 192.168.1.101 \
     ipv4.gateway 192.168.1.254 \
     ipv4.dns 8.8.8.8
 
+# Update and upgrade packages
+apt-get update
+apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+apt-get install -y dos2unix tree zip zsh
+
+# Setup Docker
+curl -sSL https://get.docker.com | sh
+usermod -aG docker cubie
+for file in /hdd/.cubie/home/cubie/.docker/*; do
+    filename=$(basename -- $file)
+    filename="${filename%.*}"
+    docker build -t "cubie/$filename" - < $file
+done
+
 # Setup boot scripts
+cp /hdd/.cubie/etc/rc.local /etc/rc.local
 sed -i "s/^exit 0/# Call init.d scripts/" /etc/rc.local
 for file in /hdd/.cubie/etc/init.d/*; do
     echo "$file &" >> /etc/rc.local
