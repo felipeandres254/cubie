@@ -1,0 +1,79 @@
+#!/usr/bin/python3
+#
+# Quectel M95 - Module properties
+# Author: @felipeandres254
+# Description: Get module properties
+
+import argparse
+import datetime
+import re
+import subprocess
+
+# Parse CLI arguments
+parser = argparse.ArgumentParser(description='Get properties')
+parser.add_argument('property', action='store', help='the property to get')
+args = parser.parse_args()
+
+# Module not turned on
+status = subprocess.run(['gsm', '--status'], stdout=subprocess.PIPE)
+if status.stdout.decode('utf-8').strip() == 'off':
+  exit(1)
+
+# Get module properties
+QUECTEL_M95__PROPERTIES = 'clk imei operator number rssi ber credit'.split(' ')
+if args.property not in QUECTEL_M95__PROPERTIES:
+  exit(1)
+if args.property == 'clk':
+  response = subprocess.run(['gsm', '--write', '+CCLK?'], stdout=subprocess.PIPE)
+  response = response.stdout.decode('utf-8').strip()
+  response = re.findall(r'"(.*)"', response)
+  response = response[0][:17]
+  response = datetime.datetime.strptime(response, '%y/%m/%d,%H:%M:%S')
+  response = response.strftime('%Y-%m-%dT%H:%M:%SZ')
+  print(response)
+if args.property == 'imei':
+  response = subprocess.run(['gsm', '--write', '+GSN'], stdout=subprocess.PIPE)
+  response = response.stdout.decode('utf-8').strip()
+  print(response)
+if args.property == 'operator':
+  response = subprocess.run(['gsm', '--write', '+COPS?'], stdout=subprocess.PIPE)
+  response = response.stdout.decode('utf-8').strip()
+  response = re.findall(r'"(.*)"', response)
+  if not response or not response[0] or response[0] != 'Tigo':
+    exit(1)
+  print('Movil Exito')
+if args.property == 'number':
+  response = subprocess.run(['gsm', '--write', '+CNUM'], stdout=subprocess.PIPE)
+  response = response.stdout.decode('utf-8').strip()
+  response = re.findall(r'","(.*)"', response)
+  if not response or not response[0]:
+    _exit(1)
+  print('+57 ' + response[0])
+if args.property == 'rssi':
+  response = subprocess.run(['gsm', '--write', '+CSQ'], stdout=subprocess.PIPE)
+  response = response.stdout.decode('utf-8').strip()
+  response = re.findall(r' (.*),', response)
+  if not response or not response[0] or response[0] == '99':
+    _exit(1)
+  print(str(2*int(response[0]) - 113) + 'dBm')
+if args.property == 'ber':
+  response = subprocess.run(['gsm', '--write', '+CSQ'], stdout=subprocess.PIPE)
+  response = response.stdout.decode('utf-8').strip()
+  response = re.findall(r',(.*)', response)
+  if not response or not response[0] or response[0] == '99':
+    _exit(1)
+  if response[0] == '0':
+    print('0%')
+  else:
+    print(str((2**int(response[0]))/10.0) + '%')
+if args.property == 'credit':
+  subprocess.run(['gsm', '--write', '+CUSD=1'], stdout=subprocess.PIPE)
+  subprocess.run(['gsm', '--write', '+CUSD=2'], stdout=subprocess.PIPE)
+  subprocess.run(['gsm', '--write', '+CSCS="GSM"'], stdout=subprocess.PIPE)
+  response = subprocess.run(['gsm', '--write', '+CUSD=1,"*3333#"'], stdout=subprocess.PIPE)
+  response = response.stdout.decode('utf-8').strip()
+  subprocess.run(['gsm', '--write', '+CUSD=2'], stdout=subprocess.PIPE)
+  print(response)
+  response = response.split('\n')[0].strip()
+  response = response.split(' ')[-1].strip()
+  print('$ ' + response.replace(',', ''))
