@@ -26,3 +26,9 @@ for led in $DIR/*; do
     echo none > $led/trigger
     echo 0 > $led/brightness
 done
+
+sleep 1;
+echo heartbeat > $DIR/cubietruck:blue:usr/trigger
+echo cpu0 > $DIR/cubietruck:orange:usr/trigger
+echo cpu1 > $DIR/cubietruck:white:usr/trigger
+echo disk-activity > $DIR/cubietruck:green:usr/trigger
