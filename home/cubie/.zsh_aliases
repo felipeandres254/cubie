@@ -1,3 +1,4 @@
 # Docker aliases
 alias docker='sudo docker'
-alias ffmpeg='docker run --rm -it -v /hdd/.drive:/ffmpeg cubie/ffmpeg'
+alias ffmpeg='docker run --rm -it -v `pwd`:/app cubie/ffmpeg'
+alias node='docker run --rm -it -v `pwd`:/app cubie/node'

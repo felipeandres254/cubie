@@ -1,7 +1,7 @@
-FROM armhf/alpine:latest
+FROM arm32v7/alpine:latest
 
 RUN apk add --no-cache ffmpeg
 
-WORKDIR /ffmpeg
+WORKDIR /app
 
 ENTRYPOINT ["ffmpeg"]
