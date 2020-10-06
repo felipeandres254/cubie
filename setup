@@ -37,6 +37,8 @@ apt-get update
 apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 apt-get install -y dos2unix tree zip zsh
 apt-get install -y python3-pip
+apt-get install -y apache2 mysql-server php libapache2-mod-php php-mysql
+apt-get install -y phpmyadmin php-curl php-mbstring php-gettext
 pip3 install pyserial
 
 # Setup Docker
