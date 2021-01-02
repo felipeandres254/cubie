@@ -1,4 +1,14 @@
 ## Cubietruck Crontab File
 
+# --------------------------------------------------
+# System scripts
+# --------------------------------------------------
+
 *     *     *     *     *     crontab /hdd/.cubie/.crontab
+*     *     *     *     *     chown -R cubie:cubie /hdd/.cubie /hdd/.drive
+
+# --------------------------------------------------
+# Development scripts
+# --------------------------------------------------
+
 *     *     *     *     *     find /hdd/.cubie -type f -exec dos2unix {} \;

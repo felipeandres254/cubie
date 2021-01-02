@@ -8,8 +8,9 @@
 uuid=$(blkid | grep /dev/sda1 | cut -d '"' -f 2)
 echo -e "UUID=$uuid /hdd auto nosuid,nodev,nofail 0 0" >> /etc/fstab
 
-# Setup user
+# Setup users
 useradd cubie
+echo -e "root\nroot" | passwd root
 echo -e "cubie\ncubie" | passwd cubie
 usermod -aG www-data cubie
 usermod -aG cubie www-data
@@ -36,19 +37,10 @@ nmcli con mod WIFI_SSID \
 apt-get update
 apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 apt-get install -y dos2unix tree zip zsh
+apt-get install -y apache2 mysql-server php libapache2-mod-php
+apt-get install -y php-mysql php-curl php-mbstring php-gettext
 apt-get install -y python3-pip
-apt-get install -y apache2 mysql-server php libapache2-mod-php php-mysql
-apt-get install -y phpmyadmin php-curl php-mbstring php-gettext
 pip3 install pyserial
-
-# Setup Docker
-curl -sSL https://get.docker.com | sh
-usermod -aG docker cubie
-for file in /hdd/.cubie/home/cubie/.docker/*; do
-    filename=$(basename -- $file)
-    filename="${filename%.*}"
-    docker build -t "cubie/$filename" - < $file
-done
 
 # Setup boot scripts
 cp /hdd/.cubie/etc/rc.local /etc/rc.local
@@ -60,5 +52,20 @@ echo -e "\nexit 0" >> /etc/rc.local
 
 # Setup crontab
 crontab /hdd/.cubie/.crontab
+
+# Setup Apache server
+for file in `find /hdd/.cubie/etc/apache2 -type f`; do
+    filename="${file//\/hdd\/.cubie\//}"
+    cp "/hdd/.cubie/$filename" "/$filename"
+done
+
+# Setup Docker
+curl -sSL https://get.docker.com | sh
+usermod -aG docker cubie
+for file in /hdd/.cubie/home/cubie/.docker/*; do
+    filename=$(basename -- $file)
+    filename="${filename%.*}"
+    docker build -t "cubie/$filename" - < $file
+done
 
 reboot
