@@ -12,7 +12,7 @@ I am currently using the following hardware
 2. 50W @5V power supply
 3. DVK-571 expansion board
 4. Quectel M95 Arduino shield
-5. 1TB SATA 2.5" Hard Disk Drive
+5. 120GB SATA 2.5" Solid State Drive
 
 ### Software
 
