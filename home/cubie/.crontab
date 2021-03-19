@@ -4,8 +4,10 @@
 # System scripts
 # --------------------------------------------------
 
-*     *     *     *     *     crontab /hdd/.cubie/.crontab
+*     *     *     *     *     crontab /hdd/.cubie/home/cubie/.crontab
 *     *     *     *     *     chown -R cubie:cubie /hdd/.cubie /hdd/.drive
+# *     *     *     *     *     chown -R root:root /hdd
+# 0     0     *     *     *     reboot
 
 # --------------------------------------------------
 # Development scripts

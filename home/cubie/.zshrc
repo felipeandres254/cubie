@@ -103,4 +103,4 @@ source ~/.zsh_aliases
 export PATH=/hdd/.cubie/home/cubie/bin:$PATH
 
 # Change working directory
-cd /hdd/.cubie
+cd /hdd/.cubie/home/cubie

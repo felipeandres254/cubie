@@ -1,0 +1,9 @@
+{
+    "folders": [{
+        "path": "/hdd/.cubie/home/cubie",
+        "name": "Home"
+    }],
+    "settings": {
+        "git.ignoreLimitWarning": true
+    }
+}

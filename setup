@@ -52,7 +52,7 @@ done
 echo -e "\nexit 0" >> /etc/rc.local
 
 # Setup crontab
-crontab /hdd/.cubie/.crontab
+crontab /hdd/.cubie/home/cubie/.crontab
 
 # Setup Apache server
 for file in `find /hdd/.cubie/etc/apache2 -type f`; do
