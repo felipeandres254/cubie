@@ -1,5 +1,1 @@
-# Docker aliases
-alias docker='sudo docker'
-alias node='docker run --rm -it -v `pwd`:/app cubie/node'
-alias ffmpeg='docker run --rm -it -v `pwd`:/app cubie/ffmpeg'
-alias imgck='docker run --rm -it -v `pwd`:/app cubie/imagemagick'
+# Aliases for ZSH
