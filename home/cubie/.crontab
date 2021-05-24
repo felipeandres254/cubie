@@ -4,13 +4,13 @@
 # System scripts
 # --------------------------------------------------
 
-*     *     *     *     *     crontab /hdd/.cubie/home/cubie/.crontab
-*     *     *     *     *     chown -R cubie:cubie /hdd/.cubie /hdd/.drive
-# *     *     *     *     *     chown -R root:root /hdd
+*     *     *     *     *     crontab /mnt/ssd/.cubie/home/cubie/.crontab
+*     *     *     *     *     chown -R cubie:cubie /mnt/ssd/.cubie
+# *     *     *     *     *     chown -R root:root /mnt/ssd
 # 0     0     *     *     *     reboot
 
 # --------------------------------------------------
 # Development scripts
 # --------------------------------------------------
 
-*     *     *     *     *     find /hdd/.cubie -type f -exec dos2unix {} \;
+*     *     *     *     *     find /mnt/ssd/.cubie -type f -exec dos2unix {} \;

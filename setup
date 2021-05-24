@@ -6,7 +6,7 @@
 
 # Auto-mount disk
 uuid=$(blkid | grep /dev/sda1 | cut -d '"' -f 2)
-echo -e "UUID=$uuid /hdd auto nosuid,nodev,nofail 0 0" >> /etc/fstab
+echo -e "UUID=$uuid /mnt/ssd auto nosuid,nodev,nofail 0 0" >> /etc/fstab
 
 # Setup users
 useradd cubie
@@ -37,33 +37,24 @@ sleep 300
 # Update and upgrade packages
 apt-get update
 apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
-apt-get install -y dos2unix tree zip zsh \
-    apache2 mysql-server php libapache2-mod-php \
-    php-mysql php-curl php-mbstring php-gettext \
-    python3-pip
+apt-get install -y dos2unix tree zip zsh python3 python3-pip
 pip3 install pyserial
 
 # Setup boot scripts
-cp /hdd/.cubie/etc/rc.local /etc/rc.local
+cp /mnt/ssd/.cubie/etc/rc.local /etc/rc.local
 sed -i "s/^exit 0/# Call init.d scripts/" /etc/rc.local
-for file in /hdd/.cubie/etc/init.d/*; do
+for file in /mnt/ssd/.cubie/etc/init.d/*; do
     echo "$file &" >> /etc/rc.local
 done
 echo -e "\nexit 0" >> /etc/rc.local
 
 # Setup crontab
-crontab /hdd/.cubie/home/cubie/.crontab
-
-# Setup Apache server
-for file in `find /hdd/.cubie/etc/apache2 -type f`; do
-    filename="${file//\/hdd\/.cubie\//}"
-    cp "/hdd/.cubie/$filename" "/$filename"
-done
+crontab /mnt/ssd/.cubie/home/cubie/.crontab
 
 # Setup Docker
 curl -sSL https://get.docker.com | sh
 usermod -aG docker cubie
-for file in /hdd/.cubie/home/cubie/docker/*; do
+for file in /mnt/ssd/.cubie/home/cubie/docker/*; do
     filename=$(basename -- $file)
     filename="${filename%.*}"
     docker build -t "cubie/$filename" - < $file

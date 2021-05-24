@@ -259,11 +259,11 @@ main() {
 	# setup_zshrc
 	setup_shell
 
-	cp /hdd/.cubie/home/cubie/.zshrc \
+	cp /mnt/ssd/.cubie/home/cubie/.zshrc \
 		/home/cubie/.zshrc
-	cp /hdd/.cubie/home/cubie/.zsh_aliases \
+	cp /mnt/ssd/.cubie/home/cubie/.zsh_aliases \
 		/home/cubie/.zsh_aliases
-	cp /hdd/.cubie/home/cubie/.oh-my-zsh/themes/agnoster.zsh-theme \
+	cp /mnt/ssd/.cubie/home/cubie/.oh-my-zsh/themes/agnoster.zsh-theme \
 		/home/cubie/.oh-my-zsh/themes/agnoster.zsh-theme
 	rm -rf \
 		/home/cubie/.shell.pre-oh-my-zsh \
@@ -294,7 +294,7 @@ main() {
 		exit
 	fi
 
-	# exec zsh -l
+	exec zsh -l
 }
 
 main "$@"

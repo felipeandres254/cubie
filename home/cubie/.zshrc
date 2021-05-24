@@ -100,7 +100,4 @@ source $ZSH/oh-my-zsh.sh
 source ~/.zsh_aliases
 
 # Update PATH
-export PATH=/hdd/.cubie/home/cubie/bin:$PATH
-
-# Change working directory
-cd /hdd/.cubie/home/cubie
+export PATH=/mnt/ssd/.cubie/home/cubie/bin:$PATH
