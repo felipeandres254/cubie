@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Cubietruck setup script
+# Cubietruck setup script, first part
 # Author: @felipeandres254
 # Description: Runs automatically on first boot
 
@@ -27,18 +27,12 @@ nmcli con add con-name Ethernet \
     ipv4.gateway 192.168.1.254 \
     ipv4.dns 8.8.8.8
 nmcli device wifi connect "WIFI_SSID" password "WIFI_PASSWORD"
-nmcli con mod WIFI_SSID \
+nmcli con mod ISVIMELO \
     ipv4.method manual \
     ipv4.address 192.168.1.100 \
     ipv4.gateway 192.168.1.254 \
     ipv4.dns 8.8.8.8
 sleep 300
-
-# Update and upgrade packages
-apt-get update
-apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
-apt-get install -y dos2unix tree zip zsh python3 python3-pip
-pip3 install pyserial
 
 # Setup boot scripts
 cp /mnt/ssd/.cubie/etc/rc.local /etc/rc.local
@@ -50,14 +44,5 @@ echo -e "\nexit 0" >> /etc/rc.local
 
 # Setup crontab
 crontab /mnt/ssd/.cubie/home/cubie/.crontab
-
-# Setup Docker
-curl -sSL https://get.docker.com | sh
-usermod -aG docker cubie
-for file in /mnt/ssd/.cubie/home/cubie/docker/*; do
-    filename=$(basename -- $file)
-    filename="${filename%.*}"
-    docker build -t "cubie/$filename" - < $file
-done
 
 reboot

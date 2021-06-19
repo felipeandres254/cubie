@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Show network status via onboard LEDs
+DIR=/sys/class/leds
+for led in $DIR/*; do
+    echo none > $led/trigger
+    echo 0 > $led/brightness
+done
