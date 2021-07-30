@@ -1,7 +1,13 @@
 {
     "folders": [{
+        "path": "/mnt/raid",
+        "name": "RAID"
+    }, {
         "path": "/mnt/ssd/.cubie/home/cubie",
         "name": "Home"
+    }, {
+        "path": "/mnt/ssd/projects",
+        "name": "Projects"
     }],
     "settings": {
         "git.ignoreLimitWarning": true

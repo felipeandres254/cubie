@@ -9,6 +9,7 @@ apt-get update
 apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 apt-get install -y dos2unix tree zip zsh python3 python3-pip
 pip3 install pyserial
+/mnt/ssd/.cubie/home/cubie/install.sh
 
 # Config GIT
 git config --global user.name "Andrés Felipe Torres"
@@ -22,5 +23,3 @@ for file in /mnt/ssd/.cubie/home/cubie/docker/*; do
     filename="${filename%.*}"
     docker build -t "cubie/$filename" - < $file
 done
-
-reboot
