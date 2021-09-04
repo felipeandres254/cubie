@@ -11,8 +11,8 @@ I am currently using the following hardware
 1. Cubietruck _(a.k.a. Cubieboard 3)_
 2. 50W @5V power supply
 3. DVK-571 expansion board
-4. Quectel M95 Arduino shield
-5. 120GB SATA 2.5" Solid State Drive
+4. Arduino Uno
+5. Quectel M95 Arduino shield
 
 ### Software
 

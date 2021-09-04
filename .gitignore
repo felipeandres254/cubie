@@ -1,3 +1,6 @@
+# Notes file
+.notes
+
 # Logs
-var/log/*
-!var/log/**/.gitkeep
+logs/*
+!logs/.gitkeep

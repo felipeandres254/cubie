@@ -1,0 +1,15 @@
+## Cubietruck Crontab File
+
+# --------------------------------------------------
+#  System scripts
+# --------------------------------------------------
+
+*     *     *     *     *     crontab /home/cubie/_/.crontab
+*     *     *     *     *     find /home/cubie/_ \! -user cubie -exec chown -R cubie:cubie {} \;
+# *     *     *     *     *     find /mnt/raid \! -user cubie -exec chown -R cubie:cubie {} \;
+
+# --------------------------------------------------
+# Development scripts
+# --------------------------------------------------
+
+*     *     *     *     *     find /home/cubie/_ -type f -exec dos2unix -ic {} \; | xargs dos2unix
