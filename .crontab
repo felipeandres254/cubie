@@ -5,7 +5,7 @@
 # --------------------------------------------------
 
 *     *     *     *     *     crontab /home/cubie/_/.crontab
-*     *     *     *     *     find /home/cubie/_ \! -user cubie -exec chown -R cubie:cubie {} \;
+*     *     *     *     *     find /home/cubie \! -user cubie -exec chown -R cubie:cubie {} \;
 # *     *     *     *     *     find /mnt/raid \! -user cubie -exec chown -R cubie:cubie {} \;
 
 # --------------------------------------------------
